@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Калькулятор дохода АпТакси</title>
+
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: #00ff88;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .box {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 0 15px #00ff88;
+    }
+
+    input[type=range] {
+      width: 100%;
+    }
+
+    .value {
+      font-size: 20px;
+      margin: 10px 0;
+    }
+
+    .result {
+      font-size: 26px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      background: #00ff88;
+      color: black;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h2>💰 Калькулятор дохода</h2>
+
+  <p>Рефералы 1 уровня</p>
+  <input type="range" min="0" max="500" value="50" id="lvl1">
+  <div class="value" id="lvl1Val">50</div>
+
+  <p>Рефералы 2 уровня</p>
+  <input type="range" min="0" max="1000" value="100" id="lvl2">
+  <div class="value" id="lvl2Val">100</div>
+
+  <p>Рефералы 3 уровня</p>
+  <input type="range" min="0" max="2000" value="300" id="lvl3">
+  <div class="value" id="lvl3Val">300</div>
+
+  <p>Средний оборот с человека (₽)</p>
+  <input type="range" min="1000" max="20000" value="5000" id="turnover">
+  <div class="value" id="turnoverVal">5000 ₽</div>
+
+  <div class="result" id="result">0 ₽ / месяц</div>
+
+  <button onclick="calc()">Рассчитать</button>
+
+</div>
+
+<script>
+vkBridge.send("VKWebAppInit");
+
+const lvl1 = document.getElementById("lvl1");
+const lvl2 = document.getElementById("lvl2");
+const lvl3 = document.getElementById("lvl3");
+const turnover = document.getElementById("turnover");
+
+const lvl1Val = document.getElementById("lvl1Val");
+const lvl2Val = document.getElementById("lvl2Val");
+const lvl3Val = document.getElementById("lvl3Val");
+const turnoverVal = document.getElementById("turnoverVal");
+
+function update() {
+  lvl1Val.innerText = lvl1.value;
+  lvl2Val.innerText = lvl2.value;
+  lvl3Val.innerText = lvl3.value;
+  turnoverVal.innerText = turnover.value + " ₽";
+}
+
+lvl1.oninput = update;
+lvl2.oninput = update;
+lvl3.oninput = update;
+turnover.oninput = update;
+
+function calc() {
+  const l1 = +lvl1.value;
+  const l2 = +lvl2.value;
+  const l3 = +lvl3.value;
+  const t = +turnover.value;
+
+  // проценты рефералки
+  const income =
+    l1 * t * 0.02 +
+    l2 * t * 0.01 +
+    l3 * t * 0.005;
+
+  document.getElementById("result").innerText =
+    Math.round(income).toLocaleString("ru-RU") + " ₽ / месяц";
+}
+
+update();
+calc();
+</script>
+
+</body>
+</html>
