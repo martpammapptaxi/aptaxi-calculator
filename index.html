@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>АпТакси — бизнес симулятор</title>
+<title>АпТакси — инвестиционный рост</title>
 
 <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,7 +19,7 @@ body {
 }
 
 .box {
-  max-width: 480px;
+  max-width: 460px;
   margin: auto;
   background: rgba(255,255,255,0.03);
   backdrop-filter: blur(12px);
@@ -32,7 +32,7 @@ h2 { margin-bottom: 10px; }
 
 .block {
   text-align: left;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .label {
@@ -40,7 +40,7 @@ h2 { margin-bottom: 10px; }
   opacity: 0.8;
 }
 
-input, select {
+select, input {
   width: 100%;
   margin-top: 6px;
   padding: 8px;
@@ -51,32 +51,14 @@ input, select {
 }
 
 .result {
-  font-size: 24px;
+  font-size: 26px;
   margin-top: 12px;
   padding-top: 10px;
   border-top: 1px solid rgba(0,255,136,0.2);
 }
 
-.event {
-  margin-top: 10px;
-  font-size: 14px;
-  opacity: 0.9;
-  min-height: 20px;
-}
-
 canvas {
-  margin-top: 12px;
-}
-
-button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  border: none;
-  background: #00ff88;
-  color: black;
-  font-weight: bold;
-  border-radius: 10px;
+  margin-top: 15px;
 }
 </style>
 </head>
@@ -85,38 +67,33 @@ button {
 
 <div class="box">
 
-<h2>🚕 Бизнес-симулятор АпТакси</h2>
+<h2>📈 Инвестиционный рост АпТакси</h2>
 
 <div class="block">
-  <div class="label">Старт пользователей</div>
-  <input id="start" type="number" value="100">
+  <div class="label">Старт рефералов</div>
+  <input type="number" id="start" value="100">
 </div>
 
 <div class="block">
-  <div class="label">Рост сети (% в месяц)</div>
-  <input id="growth" type="number" value="25">
+  <div class="label">Рост сети в месяц (%)</div>
+  <input type="number" id="growth" value="25">
 </div>
 
 <div class="block">
   <div class="label">Оборот с человека (₽)</div>
-  <input id="turnover" type="number" value="5000">
+  <input type="number" id="turnover" value="5000">
 </div>
 
 <div class="block">
-  <div class="label">Апгрейд системы</div>
-  <select id="upgrade">
-    <option value="1">Базовый</option>
-    <option value="1.2">Оптимизированный (+20%)</option>
-    <option value="1.5">Автоматизация (+50%)</option>
-    <option value="2">AI рост (+100%)</option>
+  <div class="label">Сценарий</div>
+  <select id="scenario">
+    <option value="0.6">Консервативный</option>
+    <option value="1">Нормальный</option>
+    <option value="1.5">Агрессивный</option>
   </select>
 </div>
 
-<button onclick="runMonth()">▶ Симулировать месяц</button>
-
-<div class="event" id="event"></div>
-
-<div class="result" id="result">0 ₽</div>
+<div class="result" id="result">0 ₽ / месяц</div>
 
 <canvas id="chart" height="180"></canvas>
 
@@ -125,15 +102,21 @@ button {
 <script>
 vkBridge.send("VKWebAppInit");
 
-let users = 100;
-let incomeHistory = [];
+const start = document.getElementById("start");
+const growth = document.getElementById("growth");
+const turnover = document.getElementById("turnover");
+const scenario = document.getElementById("scenario");
 
-const chart = new Chart(document.getElementById("chart"), {
+const result = document.getElementById("result");
+
+const ctx = document.getElementById("chart");
+
+const chart = new Chart(ctx, {
   type: "line",
   data: {
     labels: [],
     datasets: [{
-      label: "Доход",
+      label: "Доход ₽",
       data: [],
       borderColor: "#00ff88",
       tension: 0.4
@@ -148,49 +131,42 @@ const chart = new Chart(document.getElementById("chart"), {
   }
 });
 
-function randomEvent() {
-  const r = Math.random();
+function calc() {
 
-  if (r < 0.2) {
-    return { text: "📉 Конкурент перехватил часть рынка (-10%)", impact: 0.9 };
+  let users = +start.value;
+  let g = (+growth.value / 100) * +scenario.value;
+  let t = +turnover.value;
+
+  let data = [];
+  let labels = [];
+
+  let totalIncome = 0;
+
+  for (let m = 1; m <= 12; m++) {
+    users = users * (1 + g);
+
+    let income = users * t * 0.01; // средняя комиссия сети
+    data.push(Math.round(income));
+    labels.push("M" + m);
+
+    if (m === 12) totalIncome = income;
   }
-  if (r < 0.4) {
-    return { text: "🚀 Реклама дала рост (+20%)", impact: 1.2 };
-  }
-  if (r < 0.5) {
-    return { text: "⚡ Вирусный эффект (+35%)", impact: 1.35 };
-  }
-  return { text: "📊 Стабильный рынок", impact: 1 };
-}
 
-function runMonth() {
-
-  const growth = +document.getElementById("growth").value / 100;
-  const turnover = +document.getElementById("turnover").value;
-  const upgrade = +document.getElementById("upgrade").value;
-
-  // рост пользователей
-  users = users * (1 + growth);
-
-  // случайное событие
-  const ev = randomEvent();
-  users = users * ev.impact;
-
-  document.getElementById("event").innerText = ev.text;
-
-  // доход
-  const income = users * turnover * 0.01 * upgrade;
-
-  incomeHistory.push(Math.round(income));
-
-  // обновление UI
-  document.getElementById("result").innerText =
-    Math.round(income).toLocaleString("ru-RU") + " ₽ / месяц";
-
-  chart.data.labels.push("М" + incomeHistory.length);
-  chart.data.datasets[0].data = incomeHistory;
+  chart.data.labels = labels;
+  chart.data.datasets[0].data = data;
   chart.update();
+
+  result.innerText =
+    "Прогноз: " +
+    Math.round(totalIncome).toLocaleString("ru-RU") +
+    " ₽ / месяц";
 }
+
+[start, growth, turnover, scenario].forEach(el => {
+  el.addEventListener("input", calc);
+});
+
+calc();
 </script>
 
 </body>
