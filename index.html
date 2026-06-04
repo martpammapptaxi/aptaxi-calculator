@@ -114,8 +114,8 @@ canvas {
 <div class="block">
   <div class="label">Оборот с человека ₽</div>
   <div class="row">
-    <input type="range" min="0" max="200000" value="10" id="turnover">
-    <input type="number" min="0" max="200000" value="10" id="turnoverInput">
+    <input type="range" min="100" max="200000" value="5000" id="turnover">
+    <input type="number" min="100" max="200000" value="5000" id="turnoverInput">
   </div>
 </div>
 
@@ -140,50 +140,44 @@ const turnoverInput = document.getElementById("turnoverInput");
 
 let current = 0;
 
+// ✅ FIXED bind (финтех UX)
 function bind(range, input, min, max) {
 
-  function update() {
-    let val = +input.value;
-    if (val < min) val = min;
-    if (val > max) val = max;
-
-    range.value = val;
-    input.value = val;
-
-    calc();
+  function clamp(val) {
+    if (val === "" || val === null) return min;
+    val = Number(val);
+    if (isNaN(val)) return min;
+    if (val < min) return min;
+    if (val > max) return max;
+    return val;
   }
 
+  // slider
   range.addEventListener("input", () => {
     input.value = range.value;
     calc();
   });
 
-  input.addEventListener("input", update);
+  // typing (без ограничений во время ввода)
+  input.addEventListener("input", () => {
+    range.value = input.value;
+    calc();
+  });
+
+  // финальная фиксация (как в Tinkoff)
+  input.addEventListener("blur", () => {
+    const fixed = clamp(input.value);
+    input.value = fixed;
+    range.value = fixed;
+    calc();
+  });
 }
 
+// bind all
 bind(lvl1, lvl1Input, 0, 500);
 bind(lvl2, lvl2Input, 0, 1000);
 bind(lvl3, lvl3Input, 0, 50000);
-bind(turnover, turnoverInput, 1000, 200000);
-
-// animation
-function animateValue(end) {
-  const el = document.getElementById("result");
-  const start = current;
-  const duration = 300;
-  const startTime = performance.now();
-
-  function frame(t) {
-    const p = Math.min((t - startTime) / duration, 1);
-    const val = Math.floor(start + (end - start) * p);
-
-    el.innerText = val.toLocaleString("ru-RU") + " ₽ / месяц";
-
-    if (p < 1) requestAnimationFrame(frame);
-  }
-
-  requestAnimationFrame(frame);
-}
+bind(turnover, turnoverInput, 100, 200000);
 
 // chart
 const chart = new Chart(document.getElementById("chart"), {
@@ -231,15 +225,16 @@ function calc() {
 
   const result = Math.round(income);
 
-  animateValue(result);
-  updateChart(result);
+  document.getElementById("result").innerText =
+    result.toLocaleString("ru-RU") + " ₽ / месяц";
 
-  current = result;
+  updateChart(result);
 
   const el = document.getElementById("result");
   el.classList.add("pop");
-
   setTimeout(() => el.classList.remove("pop"), 200);
+
+  current = result;
 }
 
 // init
