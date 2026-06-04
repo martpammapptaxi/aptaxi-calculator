@@ -50,27 +50,16 @@ h2 { margin-bottom: 15px; }
 input[type=range] {
   flex: 1;
   accent-color: #00ff88;
-  transition: 0.2s;
-}
-
-input[type=range]:active {
-  transform: scale(1.02);
 }
 
 input[type=number] {
-  width: 90px;
+  width: 110px;
   background: #0f0f0f;
   border: 1px solid #00ff88;
   color: #00ff88;
   border-radius: 8px;
   padding: 6px;
   text-align: center;
-  transition: 0.2s;
-}
-
-input[type=number]:focus {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(0,255,136,0.4);
 }
 
 .result {
@@ -117,16 +106,16 @@ canvas {
 <div class="block">
   <div class="label">Рефералы 3 уровня</div>
   <div class="row">
-    <input type="range" min="0" max="30000" value="300" id="lvl3">
-    <input type="number" min="0" max="30000" value="300" id="lvl3Input">
+    <input type="range" min="0" max="50000" value="300" id="lvl3">
+    <input type="number" min="0" max="50000" value="300" id="lvl3Input">
   </div>
 </div>
 
 <div class="block">
   <div class="label">Оборот с человека ₽</div>
   <div class="row">
-    <input type="range" min="1000" max="20000" value="5000" id="turnover">
-    <input type="number" min="1000" max="20000" value="5000" id="turnoverInput">
+    <input type="range" min="1000" max="200000" value="5000" id="turnover">
+    <input type="number" min="1000" max="200000" value="5000" id="turnoverInput">
   </div>
 </div>
 
@@ -151,7 +140,6 @@ const turnoverInput = document.getElementById("turnoverInput");
 
 let current = 0;
 
-// sync helper
 function bind(range, input, min, max) {
 
   function update() {
@@ -173,11 +161,10 @@ function bind(range, input, min, max) {
   input.addEventListener("input", update);
 }
 
-// bind all
 bind(lvl1, lvl1Input, 0, 500);
 bind(lvl2, lvl2Input, 0, 1000);
-bind(lvl3, lvl3Input, 0, 2000);
-bind(turnover, turnoverInput, 1000, 20000);
+bind(lvl3, lvl3Input, 0, 50000);
+bind(turnover, turnoverInput, 1000, 200000);
 
 // animation
 function animateValue(end) {
@@ -199,10 +186,8 @@ function animateValue(end) {
 }
 
 // chart
-const ctx = document.getElementById("chart");
-
-const chart = new Chart(ctx, {
-  type: 'line',
+const chart = new Chart(document.getElementById("chart"), {
+  type: "line",
   data: {
     labels: ["100", "500", "1000", "1500", "2000"],
     datasets: [{
@@ -213,7 +198,6 @@ const chart = new Chart(ctx, {
     }]
   },
   options: {
-    responsive: true,
     plugins: { legend: { display: false } },
     scales: {
       x: { display: false },
