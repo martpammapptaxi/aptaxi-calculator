@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>АпТакси — доход</title>
+<title>АпТакси — бизнес симулятор</title>
 
 <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,83 +11,72 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: radial-gradient(circle at top, #0f0f0f, #050505);
   color: #00ff88;
   text-align: center;
-  padding: 18px;
+  padding: 16px;
 }
 
 .box {
-  max-width: 440px;
+  max-width: 480px;
   margin: auto;
   background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
   border-radius: 18px;
   padding: 18px;
   box-shadow: 0 0 25px rgba(0,255,136,0.15);
 }
 
-h2 { margin-bottom: 15px; }
+h2 { margin-bottom: 10px; }
 
 .block {
-  margin-bottom: 14px;
   text-align: left;
+  margin-bottom: 10px;
 }
 
 .label {
   font-size: 13px;
   opacity: 0.8;
-  margin-bottom: 6px;
 }
 
-.row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-input[type=range] {
-  flex: 1;
-  accent-color: #00ff88;
-  transition: 0.2s;
-}
-
-input[type=range]:active {
-  transform: scale(1.02);
-}
-
-input[type=number] {
-  width: 90px;
-  background: #0f0f0f;
-  border: 1px solid #00ff88;
-  color: #00ff88;
+input, select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
   border-radius: 8px;
-  padding: 6px;
-  text-align: center;
-  transition: 0.2s;
-}
-
-input[type=number]:focus {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(0,255,136,0.4);
+  border: 1px solid #00ff88;
+  background: #0f0f0f;
+  color: #00ff88;
 }
 
 .result {
-  font-size: 28px;
-  margin-top: 15px;
-  padding: 12px;
+  font-size: 24px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid rgba(0,255,136,0.2);
-  transition: 0.3s;
 }
 
-.result.pop {
-  transform: scale(1.06);
-  text-shadow: 0 0 15px rgba(0,255,136,0.4);
+.event {
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.9;
+  min-height: 20px;
 }
 
 canvas {
-  margin-top: 15px;
+  margin-top: 12px;
+}
+
+button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  background: #00ff88;
+  color: black;
+  font-weight: bold;
+  border-radius: 10px;
 }
 </style>
 </head>
@@ -96,41 +85,38 @@ canvas {
 
 <div class="box">
 
-<h2>💰 АпТакси доход</h2>
+<h2>🚕 Бизнес-симулятор АпТакси</h2>
 
 <div class="block">
-  <div class="label">Рефералы 1 уровня</div>
-  <div class="row">
-    <input type="range" min="0" max="500" value="50" id="lvl1">
-    <input type="number" min="0" max="500" value="50" id="lvl1Input">
-  </div>
+  <div class="label">Старт пользователей</div>
+  <input id="start" type="number" value="100">
 </div>
 
 <div class="block">
-  <div class="label">Рефералы 2 уровня</div>
-  <div class="row">
-    <input type="range" min="0" max="1000" value="100" id="lvl2">
-    <input type="number" min="0" max="1000" value="100" id="lvl2Input">
-  </div>
+  <div class="label">Рост сети (% в месяц)</div>
+  <input id="growth" type="number" value="25">
 </div>
 
 <div class="block">
-  <div class="label">Рефералы 3 уровня</div>
-  <div class="row">
-    <input type="range" min="0" max="2000" value="300" id="lvl3">
-    <input type="number" min="0" max="2000" value="300" id="lvl3Input">
-  </div>
+  <div class="label">Оборот с человека (₽)</div>
+  <input id="turnover" type="number" value="5000">
 </div>
 
 <div class="block">
-  <div class="label">Оборот с человека ₽</div>
-  <div class="row">
-    <input type="range" min="1000" max="20000" value="5000" id="turnover">
-    <input type="number" min="1000" max="20000" value="5000" id="turnoverInput">
-  </div>
+  <div class="label">Апгрейд системы</div>
+  <select id="upgrade">
+    <option value="1">Базовый</option>
+    <option value="1.2">Оптимизированный (+20%)</option>
+    <option value="1.5">Автоматизация (+50%)</option>
+    <option value="2">AI рост (+100%)</option>
+  </select>
 </div>
 
-<div class="result" id="result">0 ₽ / месяц</div>
+<button onclick="runMonth()">▶ Симулировать месяц</button>
+
+<div class="event" id="event"></div>
+
+<div class="result" id="result">0 ₽</div>
 
 <canvas id="chart" height="180"></canvas>
 
@@ -139,127 +125,72 @@ canvas {
 <script>
 vkBridge.send("VKWebAppInit");
 
-const lvl1 = document.getElementById("lvl1");
-const lvl2 = document.getElementById("lvl2");
-const lvl3 = document.getElementById("lvl3");
-const turnover = document.getElementById("turnover");
+let users = 100;
+let incomeHistory = [];
 
-const lvl1Input = document.getElementById("lvl1Input");
-const lvl2Input = document.getElementById("lvl2Input");
-const lvl3Input = document.getElementById("lvl3Input");
-const turnoverInput = document.getElementById("turnoverInput");
-
-let current = 0;
-
-// sync helper
-function bind(range, input, min, max) {
-
-  function update() {
-    let val = +input.value;
-    if (val < min) val = min;
-    if (val > max) val = max;
-
-    range.value = val;
-    input.value = val;
-
-    calc();
-  }
-
-  range.addEventListener("input", () => {
-    input.value = range.value;
-    calc();
-  });
-
-  input.addEventListener("input", update);
-}
-
-// bind all
-bind(lvl1, lvl1Input, 0, 500);
-bind(lvl2, lvl2Input, 0, 1000);
-bind(lvl3, lvl3Input, 0, 2000);
-bind(turnover, turnoverInput, 1000, 20000);
-
-// animation
-function animateValue(end) {
-  const el = document.getElementById("result");
-  const start = current;
-  const duration = 300;
-  const startTime = performance.now();
-
-  function frame(t) {
-    const p = Math.min((t - startTime) / duration, 1);
-    const val = Math.floor(start + (end - start) * p);
-
-    el.innerText = val.toLocaleString("ru-RU") + " ₽ / месяц";
-
-    if (p < 1) requestAnimationFrame(frame);
-  }
-
-  requestAnimationFrame(frame);
-}
-
-// chart
-const ctx = document.getElementById("chart");
-
-const chart = new Chart(ctx, {
-  type: 'line',
+const chart = new Chart(document.getElementById("chart"), {
+  type: "line",
   data: {
-    labels: ["100", "500", "1000", "1500", "2000"],
+    labels: [],
     datasets: [{
-      label: "Потенциал дохода",
-      data: [0,0,0,0,0],
+      label: "Доход",
+      data: [],
       borderColor: "#00ff88",
       tension: 0.4
     }]
   },
   options: {
-    responsive: true,
     plugins: { legend: { display: false } },
     scales: {
-      x: { display: false },
-      y: { display: false }
+      x: { display: true },
+      y: { display: true }
     }
   }
 });
 
-function updateChart(base) {
-  chart.data.datasets[0].data = [
-    base * 0.4,
-    base * 0.7,
-    base,
-    base * 1.3,
-    base * 1.6
-  ];
+function randomEvent() {
+  const r = Math.random();
+
+  if (r < 0.2) {
+    return { text: "📉 Конкурент перехватил часть рынка (-10%)", impact: 0.9 };
+  }
+  if (r < 0.4) {
+    return { text: "🚀 Реклама дала рост (+20%)", impact: 1.2 };
+  }
+  if (r < 0.5) {
+    return { text: "⚡ Вирусный эффект (+35%)", impact: 1.35 };
+  }
+  return { text: "📊 Стабильный рынок", impact: 1 };
+}
+
+function runMonth() {
+
+  const growth = +document.getElementById("growth").value / 100;
+  const turnover = +document.getElementById("turnover").value;
+  const upgrade = +document.getElementById("upgrade").value;
+
+  // рост пользователей
+  users = users * (1 + growth);
+
+  // случайное событие
+  const ev = randomEvent();
+  users = users * ev.impact;
+
+  document.getElementById("event").innerText = ev.text;
+
+  // доход
+  const income = users * turnover * 0.01 * upgrade;
+
+  incomeHistory.push(Math.round(income));
+
+  // обновление UI
+  document.getElementById("result").innerText =
+    Math.round(income).toLocaleString("ru-RU") + " ₽ / месяц";
+
+  chart.data.labels.push("М" + incomeHistory.length);
+  chart.data.datasets[0].data = incomeHistory;
   chart.update();
 }
-
-// calc
-function calc() {
-  const l1 = +lvl1.value;
-  const l2 = +lvl2.value;
-  const l3 = +lvl3.value;
-  const t = +turnover.value;
-
-  const income =
-    l1 * t * 0.015 +
-    l2 * t * 0.01 +
-    l3 * t * 0.005;
-
-  const result = Math.round(income);
-
-  animateValue(result);
-  updateChart(result);
-
-  current = result;
-
-  const el = document.getElementById("result");
-  el.classList.add("pop");
-
-  setTimeout(() => el.classList.remove("pop"), 200);
-}
-
-// init
-calc();
 </script>
 
 </body>
