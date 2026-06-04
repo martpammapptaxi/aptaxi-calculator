@@ -1,84 +1,138 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Калькулятор дохода АпТакси</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>АпТакси — доход</title>
 
-  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+<script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: #00ff88;
-      text-align: center;
-      padding: 20px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #0f0f0f, #050505);
+  color: #00ff88;
+  text-align: center;
+  padding: 18px;
+}
 
-    .box {
-      background: #1a1a1a;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 0 15px #00ff88;
-    }
+.box {
+  max-width: 440px;
+  margin: auto;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 0 25px rgba(0,255,136,0.15);
+}
 
-    input[type=range] {
-      width: 100%;
-    }
+h2 { margin-bottom: 15px; }
 
-    .value {
-      font-size: 20px;
-      margin: 10px 0;
-    }
+.block {
+  margin-bottom: 14px;
+  text-align: left;
+}
 
-    .result {
-      font-size: 26px;
-      margin-top: 20px;
-      font-weight: bold;
-    }
+.label {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 6px;
+}
 
-    button {
-      margin-top: 15px;
-      padding: 10px;
-      width: 100%;
-      border: none;
-      background: #00ff88;
-      color: black;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-  </style>
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+input[type=range] {
+  flex: 1;
+  accent-color: #00ff88;
+  transition: 0.2s;
+}
+
+input[type=range]:active {
+  transform: scale(1.02);
+}
+
+input[type=number] {
+  width: 90px;
+  background: #0f0f0f;
+  border: 1px solid #00ff88;
+  color: #00ff88;
+  border-radius: 8px;
+  padding: 6px;
+  text-align: center;
+  transition: 0.2s;
+}
+
+input[type=number]:focus {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(0,255,136,0.4);
+}
+
+.result {
+  font-size: 28px;
+  margin-top: 15px;
+  padding: 12px;
+  border-top: 1px solid rgba(0,255,136,0.2);
+  transition: 0.3s;
+}
+
+.result.pop {
+  transform: scale(1.06);
+  text-shadow: 0 0 15px rgba(0,255,136,0.4);
+}
+
+canvas {
+  margin-top: 15px;
+}
+</style>
 </head>
 
 <body>
 
 <div class="box">
 
-  <h2>💰 Калькулятор дохода</h2>
+<h2>💰 АпТакси доход</h2>
 
-  <p>Рефералы 1 уровня</p>
-  <input type="range" min="0" max="500" value="50" id="lvl1">
-  <div class="value" id="lvl1Val">50</div>
+<div class="block">
+  <div class="label">Рефералы 1 уровня</div>
+  <div class="row">
+    <input type="range" min="0" max="500" value="50" id="lvl1">
+    <input type="number" min="0" max="500" value="50" id="lvl1Input">
+  </div>
+</div>
 
-  <p>Рефералы 2 уровня</p>
-  <input type="range" min="0" max="1000" value="100" id="lvl2">
-  <div class="value" id="lvl2Val">100</div>
+<div class="block">
+  <div class="label">Рефералы 2 уровня</div>
+  <div class="row">
+    <input type="range" min="0" max="1000" value="100" id="lvl2">
+    <input type="number" min="0" max="1000" value="100" id="lvl2Input">
+  </div>
+</div>
 
-  <p>Рефералы 3 уровня</p>
-  <input type="range" min="0" max="2000" value="300" id="lvl3">
-  <div class="value" id="lvl3Val">300</div>
+<div class="block">
+  <div class="label">Рефералы 3 уровня</div>
+  <div class="row">
+    <input type="range" min="0" max="2000" value="300" id="lvl3">
+    <input type="number" min="0" max="2000" value="300" id="lvl3Input">
+  </div>
+</div>
 
-  <p>Средний оборот с человека (₽)</p>
-  <input type="range" min="1000" max="20000" value="5000" id="turnover">
-  <div class="value" id="turnoverVal">5000 ₽</div>
+<div class="block">
+  <div class="label">Оборот с человека ₽</div>
+  <div class="row">
+    <input type="range" min="1000" max="20000" value="5000" id="turnover">
+    <input type="number" min="1000" max="20000" value="5000" id="turnoverInput">
+  </div>
+</div>
 
-  <div class="result" id="result">0 ₽ / месяц</div>
+<div class="result" id="result">0 ₽ / месяц</div>
 
-  <button onclick="calc()">Рассчитать</button>
+<canvas id="chart" height="180"></canvas>
 
 </div>
 
@@ -90,40 +144,121 @@ const lvl2 = document.getElementById("lvl2");
 const lvl3 = document.getElementById("lvl3");
 const turnover = document.getElementById("turnover");
 
-const lvl1Val = document.getElementById("lvl1Val");
-const lvl2Val = document.getElementById("lvl2Val");
-const lvl3Val = document.getElementById("lvl3Val");
-const turnoverVal = document.getElementById("turnoverVal");
+const lvl1Input = document.getElementById("lvl1Input");
+const lvl2Input = document.getElementById("lvl2Input");
+const lvl3Input = document.getElementById("lvl3Input");
+const turnoverInput = document.getElementById("turnoverInput");
 
-function update() {
-  lvl1Val.innerText = lvl1.value;
-  lvl2Val.innerText = lvl2.value;
-  lvl3Val.innerText = lvl3.value;
-  turnoverVal.innerText = turnover.value + " ₽";
+let current = 0;
+
+// sync helper
+function bind(range, input, min, max) {
+
+  function update() {
+    let val = +input.value;
+    if (val < min) val = min;
+    if (val > max) val = max;
+
+    range.value = val;
+    input.value = val;
+
+    calc();
+  }
+
+  range.addEventListener("input", () => {
+    input.value = range.value;
+    calc();
+  });
+
+  input.addEventListener("input", update);
 }
 
-lvl1.oninput = update;
-lvl2.oninput = update;
-lvl3.oninput = update;
-turnover.oninput = update;
+// bind all
+bind(lvl1, lvl1Input, 0, 500);
+bind(lvl2, lvl2Input, 0, 1000);
+bind(lvl3, lvl3Input, 0, 2000);
+bind(turnover, turnoverInput, 1000, 20000);
 
+// animation
+function animateValue(end) {
+  const el = document.getElementById("result");
+  const start = current;
+  const duration = 300;
+  const startTime = performance.now();
+
+  function frame(t) {
+    const p = Math.min((t - startTime) / duration, 1);
+    const val = Math.floor(start + (end - start) * p);
+
+    el.innerText = val.toLocaleString("ru-RU") + " ₽ / месяц";
+
+    if (p < 1) requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+}
+
+// chart
+const ctx = document.getElementById("chart");
+
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ["100", "500", "1000", "1500", "2000"],
+    datasets: [{
+      label: "Потенциал дохода",
+      data: [0,0,0,0,0],
+      borderColor: "#00ff88",
+      tension: 0.4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { display: false },
+      y: { display: false }
+    }
+  }
+});
+
+function updateChart(base) {
+  chart.data.datasets[0].data = [
+    base * 0.4,
+    base * 0.7,
+    base,
+    base * 1.3,
+    base * 1.6
+  ];
+  chart.update();
+}
+
+// calc
 function calc() {
   const l1 = +lvl1.value;
   const l2 = +lvl2.value;
   const l3 = +lvl3.value;
   const t = +turnover.value;
 
-  // проценты рефералки
   const income =
     l1 * t * 0.015 +
     l2 * t * 0.01 +
     l3 * t * 0.005;
 
-  document.getElementById("result").innerText =
-    Math.round(income).toLocaleString("ru-RU") + " ₽ / месяц";
+  const result = Math.round(income);
+
+  animateValue(result);
+  updateChart(result);
+
+  current = result;
+
+  const el = document.getElementById("result");
+  el.classList.add("pop");
+
+  setTimeout(() => el.classList.remove("pop"), 200);
 }
 
-update();
+// init
 calc();
 </script>
 
